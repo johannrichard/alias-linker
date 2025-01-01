@@ -12,9 +12,16 @@ package-lock.json
 # Don't include the compiled main.js file in the repo.
 # They should be uploaded to GitHub releases instead.
 main.js
+dist
 
 # Exclude sourcemaps
 *.map
 
 # obsidian
 data.json
+
+# .env
+.env
+
+# .DS_Store
+.DS_Store
