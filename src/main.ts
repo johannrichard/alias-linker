@@ -28,10 +28,6 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
   }
 
   async onload() {
-    console.log(
-      `Attempting to load ${this.manifest.name} v${this.manifest.version}... does it crash?`
-    );
-
     const plugin = this;
     this.aliasCache = [];
     this.patchMDCacheUninstaller = around(
