@@ -1,74 +1,74 @@
 {
-	"name": "obsidian-auto-linker",
-	"version": "0.0.1",
-	"description": "An experimental Obsidian plugin that resolves bare alias links",
-	"main": "main.js",
-	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "node esbuild.config.mjs production"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "MIT",
-	"devDependencies": {
-		"@codemirror/autocomplete": "^6.18.4",
-		"@codemirror/commands": "^6.7.1",
-		"@codemirror/lang-javascript": "^6.2.2",
-		"@codemirror/lang-python": "^6.1.6",
-		"@codemirror/language": "^6.10.8",
-		"@codemirror/search": "^6.5.8",
-		"@codemirror/state": "^6.5.0",
-		"@codemirror/stream-parser": "https://github.com/lishid/stream-parser",
-		"@codemirror/view": "^6.36.1",
-		"@semantic-release/git": "^10.0.1",
-		"@types/node": "^22.10.3",
-		"@typescript-eslint/eslint-plugin": "^8.19.0",
-		"@typescript-eslint/parser": "^8.19.0",
-		"builtin-modules": "^4.0.0",
-		"esbuild": "0.13.12",
-		"obsidian": "^1.7.2",
-		"obsidian-typings": "^2.8.0",
-		"semantic-release-obsidian-plugin": "github:brianrodri/semantic-release-obsidian-plugin",
-		"tslib": "^2.8.1",
-		"typescript": "^5.7.2"
-	},
-	"dependencies": {
-		"monkey-around": "^3.0.0"
-	},
-	"release": {
-		"plugins": [
-			"@semantic-release/commit-analyzer",
-			"@semantic-release/release-notes-generator",
-			"semantic-release-obsidian-plugin",
-			[
-				"@semantic-release/github",
-				{
-					"assets": [
-						{
-							"path": "main.js"
-						},
-						{
-							"path": "manifest.json"
-						},
-						{
-							"path": "styles.css"
-						}
-					]
-				}
-			],
-			[
-				"@semantic-release/git",
-				{
-					"assets": [
-						"manifest.json",
-						"versions.json",
-						"package.json",
-						"package-lock.json"
-					],
-					"message": "chore(release): set `package.json`, `manifest.json`,`versions.json` and `package-lock.json` to ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-				}
-			]
-		],
-		"tagFormat": "${version}"
-	}
+    "name": "obsidian-auto-linker",
+    "version": "0.1.0-beta.1",
+    "description": "An experimental Obsidian plugin that resolves bare alias links",
+    "main": "main.js",
+    "scripts": {
+        "dev": "node esbuild.config.mjs",
+        "build": "node esbuild.config.mjs production"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@codemirror/autocomplete": "^6.18.4",
+        "@codemirror/commands": "^6.7.1",
+        "@codemirror/lang-javascript": "^6.2.2",
+        "@codemirror/lang-python": "^6.1.6",
+        "@codemirror/language": "^6.10.8",
+        "@codemirror/search": "^6.5.8",
+        "@codemirror/state": "^6.5.0",
+        "@codemirror/stream-parser": "https://github.com/lishid/stream-parser",
+        "@codemirror/view": "^6.36.1",
+        "@semantic-release/git": "^10.0.1",
+        "@types/node": "^22.10.3",
+        "@typescript-eslint/eslint-plugin": "^8.19.0",
+        "@typescript-eslint/parser": "^8.19.0",
+        "builtin-modules": "^4.0.0",
+        "esbuild": "0.13.12",
+        "obsidian": "^1.7.2",
+        "obsidian-typings": "^2.8.0",
+        "semantic-release-obsidian-plugin": "github:brianrodri/semantic-release-obsidian-plugin",
+        "tslib": "^2.8.1",
+        "typescript": "^5.7.2"
+    },
+    "dependencies": {
+        "monkey-around": "^3.0.0"
+    },
+    "release": {
+        "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            "semantic-release-obsidian-plugin",
+            [
+                "@semantic-release/github",
+                {
+                    "assets": [
+                        {
+                            "path": "main.js"
+                        },
+                        {
+                            "path": "manifest.json"
+                        },
+                        {
+                            "path": "styles.css"
+                        }
+                    ]
+                }
+            ],
+            [
+                "@semantic-release/git",
+                {
+                    "assets": [
+                        "manifest.json",
+                        "versions.json",
+                        "package.json",
+                        "package-lock.json"
+                    ],
+                    "message": "chore(release): set `package.json`, `manifest.json`,`versions.json` and `package-lock.json` to ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+                }
+            ]
+        ],
+        "tagFormat": "${version}"
+    }
 }
