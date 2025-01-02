@@ -1,0 +1,16 @@
+# Boilerplate semantic-release configuration for an Obsidian plugin
+# run semantic-release as follows to release a new version of your plugin:
+#   dry-run (default):  npx -p github:brianrodri/semantic-release-obsidian-plugin semantic-release 
+#   for real: npx -p github:brianrodri/semantic-release-obsidian-plugin semantic-release --dry-run false
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - semantic-release-obsidian-plugin
+  - - "@semantic-release/github"
+    - assets:
+        - path: dist/main.js
+        - path: manifest.json # semantic-release-obsidian-plugin will update the file in the root
+        - path: styles.css
+tagFormat: "${version}"
+ci: false
+dryRun: true
