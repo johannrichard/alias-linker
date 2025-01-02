@@ -61,7 +61,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
     this.register(this.patchMDCacheUninstaller);
 
     if (this.app.metadataCache.initialized) {
-      this.refreshLinkResolverCache();
+      // this.refreshLinkResolverCache();
     } else {
       // If not initialized, we're still in the startup phase
       // We don't need to force a refresh because we managed to patch
@@ -71,7 +71,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
 
   onunload(): void {
     this.patchMDCacheUninstaller();
-    this.refreshLinkResolverCache();
+    // this.refreshLinkResolverCache();
   }
 
   populateAliasCache() {
