@@ -1,12 +1,20 @@
 import { around } from "monkey-around";
-import { parseLinktext, Plugin, TFile } from "obsidian";
+import { debounce, normalizePath, parseLinktext, Plugin, TFile } from "obsidian";
 
 export default class ObsidianAutoLinkerPlugin extends Plugin {
   patchMDCacheUninstaller?: () => void;
   aliasIndex = new Map<string, TFile[]>();
+  aliasIndexDirty = true;
+  scheduleAliasRebuild = debounce(() => {
+    if (!this.aliasIndexDirty) {
+      return;
+    }
+    this.rebuildAliasIndex();
+    this.aliasIndexDirty = false;
+  }, 150);
 
   normalizeAlias(alias: string): string {
-    return alias.trim().toLocaleLowerCase();
+    return alias.trim().toLowerCase();
   }
 
   rebuildAliasIndex() {
@@ -25,26 +33,67 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
         this.aliasIndex.set(alias, [suggestion.file]);
       }
     }
+    for (const entries of this.aliasIndex.values()) {
+      entries.sort((left, right) => left.path.localeCompare(right.path));
+    }
   }
 
-  resolveFileByAlias(linkpath: string): TFile | null {
+  getDirectoryDistance(pathA: string, pathB: string): number {
+    const dirsA = normalizePath(pathA).split("/").slice(0, -1);
+    const dirsB = normalizePath(pathB).split("/").slice(0, -1);
+    let sharedDepth = 0;
+    while (
+      sharedDepth < dirsA.length &&
+      sharedDepth < dirsB.length &&
+      dirsA[sharedDepth] === dirsB[sharedDepth]
+    ) {
+      sharedDepth++;
+    }
+    return (
+      dirsA.length - sharedDepth +
+      dirsB.length - sharedDepth
+    );
+  }
+
+  resolveFileByAlias(linkpath: string, sourcePath?: string): TFile | null {
     const targetPath = parseLinktext(linkpath).path;
     if (!targetPath) {
       return null;
     }
 
-    if (this.aliasIndex.size === 0) {
+    if (this.aliasIndexDirty || this.aliasIndex.size === 0) {
       this.rebuildAliasIndex();
+      this.aliasIndexDirty = false;
     }
 
     const candidates = this.aliasIndex.get(this.normalizeAlias(targetPath));
-    return candidates?.[0] ?? null;
+    if (!candidates?.length) {
+      return null;
+    }
+
+    if (!sourcePath) {
+      return candidates[0];
+    }
+
+    let best = candidates[0];
+    let bestDistance = this.getDirectoryDistance(sourcePath, best.path);
+    for (let index = 1; index < candidates.length; index++) {
+      const current = candidates[index];
+      const currentDistance = this.getDirectoryDistance(sourcePath, current.path);
+      if (currentDistance < bestDistance) {
+        best = current;
+        bestDistance = currentDistance;
+      }
+      // When distances are tied, keep `best` so we preserve sorted candidate order.
+    }
+    return best;
   }
 
   async onload() {
     const plugin = this;
     const invalidateAliasIndex = () => {
-      this.aliasIndex.clear();
+      this.aliasIndexDirty = true;
+      this.scheduleAliasRebuild();
     };
 
     this.registerEvent(this.app.metadataCache.on("resolved", invalidateAliasIndex));
@@ -52,6 +101,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
     this.registerEvent(this.app.metadataCache.on("deleted", invalidateAliasIndex));
     this.registerEvent(this.app.vault.on("rename", invalidateAliasIndex));
     this.registerEvent(this.app.vault.on("create", invalidateAliasIndex));
+    invalidateAliasIndex();
 
     this.patchMDCacheUninstaller = around(
       this.app.metadataCache.constructor.prototype,
@@ -68,7 +118,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
             }
             try {
               // don't crash the method!
-              return plugin.resolveFileByAlias(linkpath);
+              return plugin.resolveFileByAlias(linkpath, sourcePath);
             } catch {
               return null;
             }
@@ -82,7 +132,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
               return result;
             }
             try {
-              const alias = plugin.resolveFileByAlias(path);
+              const alias = plugin.resolveFileByAlias(path, origin);
               return alias ? [alias] : [];
             } catch {
               return [];
