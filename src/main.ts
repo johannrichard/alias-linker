@@ -1,7 +1,19 @@
 import { around } from "monkey-around";
 import { debounce, normalizePath, parseLinktext, Plugin, TFile } from "obsidian";
 
-export default class ObsidianAutoLinkerPlugin extends Plugin {
+type GetFirstLinkpathDest = (
+  this: unknown,
+  linkpath: string,
+  sourcePath: string
+) => TFile | null;
+
+type GetLinkpathDest = (
+  this: unknown,
+  origin: string,
+  path: string
+) => TFile[];
+
+export default class AliasLinkerPlugin extends Plugin {
   patchMDCacheUninstaller?: () => void;
   aliasIndex = new Map<string, TFile[]>();
   aliasIndexDirty = true;
@@ -21,7 +33,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
     this.aliasIndex.clear();
     const suggestions = this.app.metadataCache.getLinkSuggestions();
     for (const suggestion of suggestions) {
-      if (!suggestion.alias) {
+      if (!suggestion.alias || !suggestion.file) {
         continue;
       }
 
@@ -90,7 +102,8 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
   }
 
   async onload() {
-    const plugin = this;
+    const resolveFileByAlias = (linkpath: string, sourcePath?: string): TFile | null =>
+      this.resolveFileByAlias(linkpath, sourcePath);
     const invalidateAliasIndex = () => {
       this.aliasIndexDirty = true;
       this.scheduleAliasRebuild();
@@ -110,29 +123,29 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
         //   and treat them with top priority
         // This means that if an alias name exists,it will always take priority
         //   over an actual file with the same name.
-        getFirstLinkpathDest(oldMethod) {
-          return function (linkpath: string, sourcePath: string) {
-            const result = oldMethod.call(this, linkpath, sourcePath);
+        getFirstLinkpathDest(oldMethod: GetFirstLinkpathDest): GetFirstLinkpathDest {
+          return function (this: unknown, linkpath: string, sourcePath: string): TFile | null {
+            const result = oldMethod.call(this, linkpath, sourcePath) as TFile | null;
             if (result) {
               return result;
             }
             try {
               // don't crash the method!
-              return plugin.resolveFileByAlias(linkpath, sourcePath);
+              return resolveFileByAlias(linkpath, sourcePath);
             } catch {
               return null;
             }
           };
         },
         // On Obsidian 1.12+ this path is increasingly used by graph-related internals.
-        getLinkpathDest(oldMethod) {
-          return function (origin: string, path: string) {
-            const result = oldMethod.call(this, origin, path);
+        getLinkpathDest(oldMethod: GetLinkpathDest): GetLinkpathDest {
+          return function (this: unknown, origin: string, path: string): TFile[] {
+            const result = oldMethod.call(this, origin, path) as TFile[];
             if (result?.length) {
               return result;
             }
             try {
-              const alias = plugin.resolveFileByAlias(path, origin);
+              const alias = resolveFileByAlias(path, origin);
               return alias ? [alias] : [];
             } catch {
               return [];

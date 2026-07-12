@@ -1,29 +1,32 @@
-## Obsidian Auto Linker
+## Alias Linker
 
-This is an early alpha of a plugin that allows for aliases to be referenced directly like `[[this]]` rather than `[[filename|this]]`
+Alias Linker is an Obsidian plugin that lets you link to notes by alias as if the alias were the note name.
 
-In order to accomplish this, the plugin patches the default Obsidian link resolution logic. The logic will remain the same if the link resolves to an existing file in the vault. The new behavior is that, if no existing file is found, it will attempt to find a document containing a matching alias.
+Instead of writing `[[filename|alias]]`, you can often just write `[[alias]]` and the plugin will open the right note.
 
-The logic will pick the closest and first document with a matching alias. If you have multiple documents with the same alias, the first and closest document will always be resolved. If you want to maintain multiple documents with the same alias, it is recommended that you continue to fully qualify them as normal [[file|alias]].
+The original idea and a working prototype came from [nothingislost/obsidian-auto-linker](https://github.com/nothingislost/obsidian-auto-linker). This repository builds on that prototype under the Alias Linker name.
 
-If you have an actual file with the same name as one of your aliases, the actual file will always be preferred. In the future, there may be an option to always prefer aliases.
+### What it does
 
-If you notice any weirdness with indexing, link resolution or the graph view, disable this plugin and everything will revert back to the default resolution logic.
+- Lets bare wikilinks like `[[alias]]` resolve to notes that define that alias.
+- Keeps normal Obsidian behavior when `[[link]]` already matches a real file name.
+- Picks the nearest matching note first when multiple notes share the same alias.
+- Supports alias resolution across graph view, backlinks, embeds, and preview link state.
+- Can be disabled at any time to immediately return to default Obsidian link behavior.
 
-### Modernization notes (Obsidian 1.12+)
+If you intentionally reuse the same alias in multiple notes, prefer explicit links like `[[file|alias]]` whenever you need deterministic targeting.
 
-This plugin now tracks latest catalyst typings using `@obsidian-typings/obsidian-catalyst-latest`.
+### Technical details (plain language)
 
-After validating the current Obsidian 1.12+ API surface, there is still no official plugin hook to override bare wikilink destination resolution globally (editor + graph + backlinks + embeds). The practical option remains patching metadata cache internals.
+Internally, the plugin extends Obsidian's link lookup step with an alias fallback. In practice, this means Obsidian tries its normal file-path resolution first, and only if that fails does Alias Linker look for notes whose aliases match the link text.
 
-What worked best:
-- Patch `MetadataCache.getFirstLinkpathDest` for the core wikilink resolution fallback.
-- Patch `MetadataCache.getLinkpathDest` as a secondary fallback used by newer internals (including graph-related paths on recent builds).
-- Keep this plugin mobile-safe by staying in runtime-only JS monkey patches (no desktop-only APIs).
+To keep results stable, Alias Linker keeps an index of aliases and refreshes it when files or metadata change. When several notes share the same alias, candidates are sorted and the closest note (by folder distance from the source note) is chosen first.
 
-What did not provide complete coverage:
-- Markdown post processors and editor-only extensions (visual/editor scope only, no graph/backlinks global resolution).
-- Metadata events alone (reactive updates, but no interception point for destination selection).
+For Obsidian 1.12+, this fallback is applied through metadata cache methods used by both normal link resolution and newer graph-related internals. The plugin stays runtime-only (no desktop-only APIs), so it remains compatible with mobile setups.
+
+In real use, the most reliable approach has been to patch `MetadataCache.getFirstLinkpathDest` (main wikilink path) and `MetadataCache.getLinkpathDest` (used more often in newer internals, including graph flows).
+
+Some alternatives were tested but were incomplete: editor-only extensions and markdown post-processors only affect visible/editor contexts, and metadata events can react to changes but cannot choose link destinations globally.
 
 ### Components that now support bare aliases
 
@@ -36,8 +39,8 @@ In theory, this patch may automatically allow other plugins, like DataView, to r
 
 ### Installing via BRAT
 
-Install the BRAT plugin via the Obsidian Plugin Browser and then add the beta repository "nothingislost/obsidian-auto-linker"
+Install the BRAT plugin via the Obsidian Plugin Browser and then add the beta repository `johannrichard/alias-linker`.
 
 ### Manually installing the plugin
 
-- Copy over `main.js`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/obsidian-auto-linker/`.
+- Copy over `main.js`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/alias-linker/`.
