@@ -10,6 +10,21 @@ If you have an actual file with the same name as one of your aliases, the actual
 
 If you notice any weirdness with indexing, link resolution or the graph view, disable this plugin and everything will revert back to the default resolution logic.
 
+### Modernization notes (Obsidian 1.12+)
+
+This plugin now tracks latest catalyst typings using `@obsidian-typings/obsidian-catalyst-latest`.
+
+After validating the current Obsidian 1.12+ API surface, there is still no official plugin hook to override bare wikilink destination resolution globally (editor + graph + backlinks + embeds). The practical option remains patching metadata cache internals.
+
+What worked best:
+- Patch `MetadataCache.getFirstLinkpathDest` for the core wikilink resolution fallback.
+- Patch `MetadataCache.getLinkpathDest` as a secondary fallback used by newer internals (including graph-related paths on recent builds).
+- Keep this plugin mobile-safe by staying in runtime-only JS monkey patches (no desktop-only APIs).
+
+What did not provide complete coverage:
+- Markdown post processors and editor-only extensions (visual/editor scope only, no graph/backlinks global resolution).
+- Metadata events alone (reactive updates, but no interception point for destination selection).
+
 ### Components that now support bare aliases
 
 - Graph view

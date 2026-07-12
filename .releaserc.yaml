@@ -26,3 +26,5 @@ plugins:
 
         ${nextRelease.notes}
 tagFormat: "${version}"
+ci: false
+dryRun: true
