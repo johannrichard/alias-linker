@@ -1,0 +1,28 @@
+branches:
+  - master
+  - main
+  - { name: "beta", prerelease: true }
+  - { name: "**", prerelease: true }
+
+plugins:
+  - - "@semantic-release/commit-analyzer"
+    - preset: conventionalcommits
+  - - "@semantic-release/release-notes-generator"
+    - preset: conventionalcommits
+  - semantic-release-obsidian-plugin
+  - - "@semantic-release/github"
+    - assets:
+        - path: dist/main.js
+        - path: manifest.json
+  - - "@semantic-release/git"
+    - assets:
+        - manifest.json
+        - versions.json
+        - package.json
+      message: >-
+        chore(release): set `package.json`, `manifest.json` and
+        `versions.json` to ${nextRelease.version} [skip ci]
+
+
+        ${nextRelease.notes}
+tagFormat: "${version}"
