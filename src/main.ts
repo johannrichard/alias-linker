@@ -21,7 +21,7 @@ export default class ObsidianAutoLinkerPlugin extends Plugin {
     this.aliasIndex.clear();
     const suggestions = this.app.metadataCache.getLinkSuggestions();
     for (const suggestion of suggestions) {
-      if (!suggestion.alias) {
+      if (!suggestion.alias || !suggestion.file) {
         continue;
       }
 
