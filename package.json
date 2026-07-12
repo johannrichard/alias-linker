@@ -1,6 +1,6 @@
 {
     "name": "obsidian-auto-linker",
-    "version": "0.1.0-beta.3",
+    "version": "0.1.0-beta.6",
     "description": "An experimental Obsidian plugin that resolves bare alias links",
     "main": "main.js",
     "scripts": {
