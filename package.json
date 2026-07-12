@@ -1,6 +1,6 @@
 {
     "name": "alias-linker",
-    "version": "1.0.1",
+    "version": "1.0.2-copilot-fix-warnings-in-source-code.1",
     "description": "An experimental Obsidian plugin that resolves bare alias links",
     "main": "main.js",
     "scripts": {
