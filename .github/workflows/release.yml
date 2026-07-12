@@ -36,6 +36,7 @@ jobs:
       - name: Build plugin
         run: npm run build
       - name: Generate artifact attestations
+        if: github.ref_name == 'main' || github.ref_name == 'master'
         uses: actions/attest@v4
         with:
           subject-path: |
