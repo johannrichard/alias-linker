@@ -123,11 +123,20 @@ export default class AliasLinkerPlugin extends Plugin {
         //   and treat them with top priority
         // This means that if an alias name exists,it will always take priority
         //   over an actual file with the same name.
-        getFirstLinkpathDest(oldMethod: GetFirstLinkpathDest): GetFirstLinkpathDest {
+        getFirstLinkpathDest(oldMethod: unknown): GetFirstLinkpathDest {
+          if (typeof oldMethod !== "function") {
+            return function (): TFile | null {
+              return null;
+            };
+          }
+          const typedMethod = oldMethod as GetFirstLinkpathDest;
           return function (this: unknown, linkpath: string, sourcePath: string): TFile | null {
-            const result = oldMethod.call(this, linkpath, sourcePath);
-            if (result) {
+            const result: unknown = typedMethod.call(this, linkpath, sourcePath);
+            if (result instanceof TFile) {
               return result;
+            }
+            if (result !== null) {
+              return null;
             }
             try {
               // don't crash the method!
@@ -138,11 +147,17 @@ export default class AliasLinkerPlugin extends Plugin {
           };
         },
         // On Obsidian 1.12+ this path is increasingly used by graph-related internals.
-        getLinkpathDest(oldMethod: GetLinkpathDest): GetLinkpathDest {
+        getLinkpathDest(oldMethod: unknown): GetLinkpathDest {
+          if (typeof oldMethod !== "function") {
+            return function (): TFile[] {
+              return [];
+            };
+          }
+          const typedMethod = oldMethod as GetLinkpathDest;
           return function (this: unknown, origin: string, path: string): TFile[] {
-            const result = oldMethod.call(this, origin, path);
-            if (result?.length) {
-              return result;
+            const result: unknown = typedMethod.call(this, origin, path);
+            if (Array.isArray(result) && result.length > 0) {
+              return result.filter((entry): entry is TFile => entry instanceof TFile);
             }
             try {
               const alias = resolveFileByAlias(path, origin);
