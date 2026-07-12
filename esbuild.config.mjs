@@ -4,11 +4,7 @@ import { builtinModules } from "node:module";
 
 const builtins = [
   ...new Set(
-    builtinModules.flatMap((module) =>
-      module.startsWith("node:")
-        ? [module, module.slice(5)]
-        : [module, `node:${module}`]
-    )
+    builtinModules.flatMap((module) => [module, `node:${module}`])
   ),
 ];
 

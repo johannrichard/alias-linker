@@ -128,7 +128,7 @@ export default class AliasLinkerPlugin extends Plugin {
       {
         // Here we patch the logic of getFirstLinkpathDest to resolve aliases
         //   and treat them with top priority
-        // This means that if an alias name exists,it will always take priority
+        // This means that if an alias name exists, it will always take priority
         //   over an actual file with the same name.
         getFirstLinkpathDest(oldMethod: unknown): GetFirstLinkpathDest {
           if (typeof oldMethod !== "function") {
@@ -144,6 +144,7 @@ export default class AliasLinkerPlugin extends Plugin {
               return result;
             }
             if (result !== null && result !== undefined) {
+              console.warn("AliasLinker: unexpected getFirstLinkpathDest return value", result);
               return null;
             }
             try {
