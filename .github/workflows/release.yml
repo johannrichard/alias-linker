@@ -16,6 +16,7 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,6 +35,12 @@ jobs:
         continue-on-error: true
       - name: Build plugin
         run: npm run build
+      - name: Generate artifact attestations
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/main.js
+            manifest.json
       - name: Release update
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
