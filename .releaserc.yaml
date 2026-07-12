@@ -1,3 +1,9 @@
+branches:
+  - master
+  - main
+  - { name: "beta", prerelease: true }
+  - { name: "**", prerelease: true }
+
 plugins:
   - - "@semantic-release/commit-analyzer"
     - preset: conventionalcommits
