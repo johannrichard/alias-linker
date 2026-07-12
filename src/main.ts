@@ -13,6 +13,13 @@ type GetLinkpathDest = (
   path: string
 ) => TFile[];
 
+const isTFileLike = (value: unknown): value is TFile =>
+  value instanceof TFile ||
+  (typeof value === "object" &&
+    value !== null &&
+    Reflect.has(value, "path") &&
+    typeof Reflect.get(value, "path") === "string");
+
 export default class AliasLinkerPlugin extends Plugin {
   patchMDCacheUninstaller?: () => void;
   aliasIndex = new Map<string, TFile[]>();
@@ -125,6 +132,7 @@ export default class AliasLinkerPlugin extends Plugin {
         //   over an actual file with the same name.
         getFirstLinkpathDest(oldMethod: unknown): GetFirstLinkpathDest {
           if (typeof oldMethod !== "function") {
+            console.warn("AliasLinker: metadataCache.getFirstLinkpathDest is not callable");
             return function (): TFile | null {
               return null;
             };
@@ -132,10 +140,10 @@ export default class AliasLinkerPlugin extends Plugin {
           const typedMethod = oldMethod as GetFirstLinkpathDest;
           return function (this: unknown, linkpath: string, sourcePath: string): TFile | null {
             const result: unknown = typedMethod.call(this, linkpath, sourcePath);
-            if (result instanceof TFile) {
+            if (isTFileLike(result)) {
               return result;
             }
-            if (result !== null) {
+            if (result !== null && result !== undefined) {
               return null;
             }
             try {
@@ -149,6 +157,7 @@ export default class AliasLinkerPlugin extends Plugin {
         // On Obsidian 1.12+ this path is increasingly used by graph-related internals.
         getLinkpathDest(oldMethod: unknown): GetLinkpathDest {
           if (typeof oldMethod !== "function") {
+            console.warn("AliasLinker: metadataCache.getLinkpathDest is not callable");
             return function (): TFile[] {
               return [];
             };
@@ -157,7 +166,10 @@ export default class AliasLinkerPlugin extends Plugin {
           return function (this: unknown, origin: string, path: string): TFile[] {
             const result: unknown = typedMethod.call(this, origin, path);
             if (Array.isArray(result) && result.length > 0) {
-              return result.filter((entry): entry is TFile => entry instanceof TFile);
+              const files = result.filter(isTFileLike);
+              if (files.length > 0) {
+                return files;
+              }
             }
             try {
               const alias = resolveFileByAlias(path, origin);
