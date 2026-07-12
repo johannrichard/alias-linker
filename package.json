@@ -31,7 +31,7 @@
 		"conventional-changelog-conventionalcommits": "^9.1.0",
 		"esbuild": "0.13.12",
 		"obsidian": "^0.13.8",
-		"semantic-release": "^24.2.9",
+		"semantic-release": "^25.0.2",
 		"semantic-release-obsidian-plugin": "^1.2.0",
 		"tslib": "2.3.1",
 		"typescript": "4.4.4"
