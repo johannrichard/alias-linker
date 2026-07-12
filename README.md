@@ -44,3 +44,7 @@ Install the BRAT plugin via the Obsidian Plugin Browser and then add the beta re
 ### Manually installing the plugin
 
 - Copy over `main.js`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/alias-linker/`.
+
+### License
+
+MIT. Includes the original 2021 prototype work by NothingIsLost and subsequent Alias Linker work by Johann Richard.
