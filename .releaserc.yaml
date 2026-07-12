@@ -1,16 +1,30 @@
-# Boilerplate semantic-release configuration for an Obsidian plugin
-# run semantic-release as follows to release a new version of your plugin:
-#   dry-run (default):  npx -p github:brianrodri/semantic-release-obsidian-plugin semantic-release 
-#   for real: npx -p github:brianrodri/semantic-release-obsidian-plugin semantic-release --dry-run false
+branches:
+  - master
+  - main
+  - { name: "beta", prerelease: true }
+  - { name: "**", prerelease: true }
+
 plugins:
-  - "@semantic-release/commit-analyzer"
-  - "@semantic-release/release-notes-generator"
+  - - "@semantic-release/commit-analyzer"
+    - preset: conventionalcommits
+  - - "@semantic-release/release-notes-generator"
+    - preset: conventionalcommits
   - semantic-release-obsidian-plugin
   - - "@semantic-release/github"
     - assets:
         - path: dist/main.js
-        - path: manifest.json # semantic-release-obsidian-plugin will update the file in the root
-        - path: styles.css
+        - path: manifest.json
+  - - "@semantic-release/git"
+    - assets:
+        - manifest.json
+        - versions.json
+        - package.json
+      message: >-
+        chore(release): set `package.json`, `manifest.json` and
+        `versions.json` to ${nextRelease.version} [skip ci]
+
+
+        ${nextRelease.notes}
 tagFormat: "${version}"
 ci: false
 dryRun: true
