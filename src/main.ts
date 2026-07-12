@@ -13,6 +13,13 @@ type GetLinkpathDest = (
   path: string
 ) => TFile[];
 
+const isTFileLike = (value: unknown): value is TFile =>
+  value instanceof TFile ||
+  (typeof value === "object" &&
+    value !== null &&
+    Reflect.has(value, "path") &&
+    typeof Reflect.get(value, "path") === "string");
+
 export default class AliasLinkerPlugin extends Plugin {
   patchMDCacheUninstaller?: () => void;
   aliasIndex = new Map<string, TFile[]>();
@@ -121,13 +128,24 @@ export default class AliasLinkerPlugin extends Plugin {
       {
         // Here we patch the logic of getFirstLinkpathDest to resolve aliases
         //   and treat them with top priority
-        // This means that if an alias name exists,it will always take priority
+        // This means that if an alias name exists, it will always take priority
         //   over an actual file with the same name.
-        getFirstLinkpathDest(oldMethod: GetFirstLinkpathDest): GetFirstLinkpathDest {
+        getFirstLinkpathDest(oldMethod: unknown): GetFirstLinkpathDest {
+          if (typeof oldMethod !== "function") {
+            console.warn("AliasLinker: metadataCache.getFirstLinkpathDest is not callable");
+            return function (): TFile | null {
+              return null;
+            };
+          }
+          const typedMethod = oldMethod as GetFirstLinkpathDest;
           return function (this: unknown, linkpath: string, sourcePath: string): TFile | null {
-            const result = oldMethod.call(this, linkpath, sourcePath) as TFile | null;
-            if (result) {
+            const result: unknown = typedMethod.call(this, linkpath, sourcePath);
+            if (isTFileLike(result)) {
               return result;
+            }
+            if (result !== null && result !== undefined) {
+              console.warn("AliasLinker: unexpected getFirstLinkpathDest return value", result);
+              return null;
             }
             try {
               // don't crash the method!
@@ -138,11 +156,21 @@ export default class AliasLinkerPlugin extends Plugin {
           };
         },
         // On Obsidian 1.12+ this path is increasingly used by graph-related internals.
-        getLinkpathDest(oldMethod: GetLinkpathDest): GetLinkpathDest {
+        getLinkpathDest(oldMethod: unknown): GetLinkpathDest {
+          if (typeof oldMethod !== "function") {
+            console.warn("AliasLinker: metadataCache.getLinkpathDest is not callable");
+            return function (): TFile[] {
+              return [];
+            };
+          }
+          const typedMethod = oldMethod as GetLinkpathDest;
           return function (this: unknown, origin: string, path: string): TFile[] {
-            const result = oldMethod.call(this, origin, path) as TFile[];
-            if (result?.length) {
-              return result;
+            const result: unknown = typedMethod.call(this, origin, path);
+            if (Array.isArray(result) && result.length > 0) {
+              const files = result.filter(isTFileLike);
+              if (files.length > 0) {
+                return files;
+              }
             }
             try {
               const alias = resolveFileByAlias(path, origin);
