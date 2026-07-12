@@ -125,7 +125,7 @@ export default class AliasLinkerPlugin extends Plugin {
         //   over an actual file with the same name.
         getFirstLinkpathDest(oldMethod: GetFirstLinkpathDest): GetFirstLinkpathDest {
           return function (this: unknown, linkpath: string, sourcePath: string): TFile | null {
-            const result = oldMethod.call(this, linkpath, sourcePath) as TFile | null;
+            const result = oldMethod.call(this, linkpath, sourcePath);
             if (result) {
               return result;
             }
@@ -140,7 +140,7 @@ export default class AliasLinkerPlugin extends Plugin {
         // On Obsidian 1.12+ this path is increasingly used by graph-related internals.
         getLinkpathDest(oldMethod: GetLinkpathDest): GetLinkpathDest {
           return function (this: unknown, origin: string, path: string): TFile[] {
-            const result = oldMethod.call(this, origin, path) as TFile[];
+            const result = oldMethod.call(this, origin, path);
             if (result?.length) {
               return result;
             }
