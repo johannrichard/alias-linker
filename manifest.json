@@ -1,7 +1,7 @@
 {
     "id": "alias-linker",
     "name": "Alias Linker",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "minAppVersion": "0.12.5",
     "description": "An experimental plugin that resolves bare alias links.",
     "author": "johannrichard",

@@ -1,6 +1,6 @@
 {
     "name": "alias-linker",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "An experimental Obsidian plugin that resolves bare alias links",
     "main": "main.js",
     "scripts": {
