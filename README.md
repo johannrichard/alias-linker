@@ -1,6 +1,8 @@
-## Obsidian Auto Linker
+## Alias Linker
 
-This is an early alpha of a plugin that allows for aliases to be referenced directly like `[[this]]` rather than `[[filename|this]]`
+Alias Linker is an Obsidian plugin that allows aliases to be referenced directly like `[[this]]` rather than `[[filename|this]]`.
+
+The original idea and a working prototype came from [nothingislost/obsidian-auto-linker](https://github.com/nothingislost/obsidian-auto-linker). This repository builds on that prototype under the Alias Linker name.
 
 In order to accomplish this, the plugin patches the default Obsidian link resolution logic. The logic will remain the same if the link resolves to an existing file in the vault. The new behavior is that, if no existing file is found, it will attempt to find a document containing a matching alias.
 
@@ -36,8 +38,8 @@ In theory, this patch may automatically allow other plugins, like DataView, to r
 
 ### Installing via BRAT
 
-Install the BRAT plugin via the Obsidian Plugin Browser and then add the beta repository "nothingislost/obsidian-auto-linker"
+Install the BRAT plugin via the Obsidian Plugin Browser and then add the beta repository `johannrichard/alias-linker`.
 
 ### Manually installing the plugin
 
-- Copy over `main.js`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/obsidian-auto-linker/`.
+- Copy over `main.js`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/alias-linker/`.
