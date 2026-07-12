@@ -1,8 +1,24 @@
+# A semantic-release configuration for an Obsidian plugin
+# run semantic-release as follows to release a new version of your plugin:
+#   dry-run (default):  npm run release:dry-run
+#   for real:           npm run release:local
+#
+# Branch strategy
+#   main / master         → regular release  (e.g. 1.2.0)
+#   beta                  → pre-release      (e.g. 1.2.0-beta.1)
+#   any other branch      → pre-release using the sanitised branch name as the
+#                           channel identifier, e.g. triggering manually on
+#                           "copilot/progress-indicator-and-modal-changes"
+#                           produces 1.2.0-copilot-progress-indicator-and-modal-changes.1
+#                           Use the "Release plugin version" workflow_dispatch
+#                           trigger from any branch to cut a pre-release.
 branches:
-  - master
   - main
-  - { name: "beta", prerelease: true }
-  - { name: "**", prerelease: true }
+  - master
+  - name: beta
+    prerelease: true
+  - name: '**'
+    prerelease: '${name.replace(/[^0-9A-Za-z-]+/g, "-")}'
 
 plugins:
   - - "@semantic-release/commit-analyzer"
