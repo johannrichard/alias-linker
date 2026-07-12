@@ -13,7 +13,7 @@ type GetLinkpathDest = (
   path: string
 ) => TFile[];
 
-export default class ObsidianAutoLinkerPlugin extends Plugin {
+export default class AliasLinkerPlugin extends Plugin {
   patchMDCacheUninstaller?: () => void;
   aliasIndex = new Map<string, TFile[]>();
   aliasIndexDirty = true;
