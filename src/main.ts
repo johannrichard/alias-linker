@@ -1,7 +1,7 @@
 import { around } from "monkey-around";
 import { debounce, normalizePath, parseLinktext, Plugin, TFile } from "obsidian";
 
-export default class ObsidianAutoLinkerPlugin extends Plugin {
+export default class AliasLinkerPlugin extends Plugin {
   patchMDCacheUninstaller?: () => void;
   aliasIndex = new Map<string, TFile[]>();
   aliasIndexDirty = true;

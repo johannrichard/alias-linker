@@ -1,4 +1,4 @@
-name: Release plugin version
+name: Release Alias Linker
 on:
   workflow_dispatch:
   push:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   release:
-    name: Release
+    name: Release Alias Linker
     runs-on: ubuntu-latest
     permissions:
       contents: write
